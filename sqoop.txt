@@ -1,0 +1,27 @@
+[1]下载上传sqoop并解压重命名
+https://mirror.bit.edu.cn/apache/sqoop/1.4.7/
+
+#tar -zxvf sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz -C /opt/modules/
+#mv sqoop-1.4.7.bin__hadoop-2.6.0/ sqoop-1.4.7
+
+
+[2]配置坏境变量
+#vim /etc/profile
+
+export SQOOP_HOME=/opt/modules/sqoop-1.4.7
+export PATH=$PATH:$SQOOP_HOME/bin
+
+#source /etc/profile
+
+[3]修改配置
+#cp /opt/modules/sqoop-1.4.7/conf/sqoop-env-template.sh /opt/modules/sqoop-1.4.7/conf/sqoop-env.sh
+#vim /opt/modules/sqoop-1.4.7/conf/sqoop-env.sh
+
+export HADOOP_COMMON_HOME=/opt/modules/hadoop-2.9.2
+export HADOOP_MAPRED_HOME=/opt/modules/hadoop-2.9.2
+
+[4]将mysql驱动copy到lib目录下
+cp /opt/softwares/mysql-connector-java-5.1.32-bin.jar /opt/modules/sqoop-1.4.7/lib/
+
+[5]测试，查询本地已经安装的mysql数据库列表
+#sqoop list-databases --connect jdbc:mysql://centos01:3306/mydb --username root --password root

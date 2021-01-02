@@ -1,0 +1,89 @@
+[1]下载上传解压
+https://archive.apache.org/dist/spark/
+#tar -zxvf spark-2.4.0-bin-hadoop2.7.tgz -C /opt/modules/
+
+
+====================Spark Standalone模式（自带资源调度系统）============================
+
+
+[2]修改slaves文件
+#cp /opt/modules/spark-2.4.0-bin-hadoop2.7/conf/slaves.template /opt/modules/spark-2.4.0-bin-hadoop2.7/conf/slaves
+
+#vim /opt/modules/spark-2.4.0-bin-hadoop2.7/conf/slaves
+
+centos02
+centos03
+
+[3]修改spark.sh文件
+#cp /opt/modules/spark-2.4.0-bin-hadoop2.7/conf/spark-env.sh.template /opt/modules/spark-2.4.0-bin-hadoop2.7/conf/spark-env.sh
+#vim /opt/modules/spark-2.4.0-bin-hadoop2.7/conf/spark-env.sh
+
+export JAVA_HOME=/opt/modules/jdk1.8.0_11
+export SPARK_MASTER_IP=centos01
+export SPARK_MASTER_PORT=7077
+
+[4]将spark发送到其他节点
+
+#scp -r spark-2.4.0-bin-hadoop2.7/ hadoop@centos02:`pwd`
+#scp -r spark-2.4.0-bin-hadoop2.7/ hadoop@centos03:`pwd`
+
+
+[5]在centos01的Spark安装目录执行以下目录，启动Spark集群
+#cd /opt/modules/spark-2.4.0-bin-hadoop2.7/sbin/
+#./start-all.sh
+
+[6]使用jps查看
+centos01中能查看到Master
+centos02中能查看到Worker
+centos02中能查看到Worker
+可以在浏览器中访问
+http://centos01:8080/
+
+
+======================Spark HA搭建===============================
+[1]停止Spark集群
+#cd /opt/modules/spark-2.4.0-bin-hadoop2.7/sbin/
+#./stop-all.sh
+
+[2]修改配置文件spark-env.sh
+export JAVA_HOME=/opt/modules/jdk1.8.0_11
+#export SPARK_MASTER_IP=centos01
+export SPARK_MASTER_PORT=7077
+export SPARK_DAEMON_JAVA_OPTS="-Dspark.deploy.recoveryMode=ZOOKEEPER
+-Dspark.deploy.zookeeper.url=centos01:2181,centos02:2181,centos03:2181
+-Dspark.deploy.zookeeper.dir=/spark"
+
+[3]将配置文件发送到其他节点
+
+#scp spark-env.sh hadoop@centos02:`pwd`
+#scp spark-env.sh hadoop@centos03:`pwd`
+
+[4]启动Zookeeper集群
+
+[5]启动Spark集群
+#cd /opt/modules/spark-2.4.0-bin-hadoop2.7/sbin/
+#./start-all.sh
+
+注：在哪个节点启动Spark集群，活动状态的节点就位于那个节点上
+
+在centos02上执行
+#cd /opt/modules/spark-2.4.0-bin-hadoop2.7/sbin/
+#./start-master.sh
+
+#jps查看各节点情况
+
+http://centos01:8080/
+http://centos02:8080/
+
+
+[6]连接Spark集群操作
+
+./spark-shell --master spark://centos02:7077
+
+
+
+
+
+
+
+
